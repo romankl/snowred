@@ -1,5 +1,10 @@
 package eu.roklapps.snowred.app.api.reddit.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Credentials {
     private String mUsername;
     private String mPassword;
@@ -9,6 +14,20 @@ public class Credentials {
     public Credentials(String mPassword, String mUsername) {
         this.mPassword = mPassword;
         this.mUsername = mUsername;
+    }
+
+    public Map<String, List<String>> convertPasswordAndUser() {
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
+        List<String> param = new ArrayList<String>();
+        param.add(mPassword);
+        map.put("passwd", param);
+
+        param = new ArrayList<String>();
+
+        param.add(mUsername);
+        map.put("user", param);
+
+        return map;
     }
 
     public String getUsername() {

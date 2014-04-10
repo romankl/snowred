@@ -2,19 +2,24 @@ package eu.roklapps.snowred.app.api.reddit.model;
 
 import android.content.Context;
 
-import eu.roklapps.snowred.app.api.reddit.access.LoginConnection;
-import eu.roklapps.snowred.app.api.reddit.callbacks.ConnectionResult;
+import eu.roklapps.snowred.app.api.reddit.access.Connection;
 
-public class CurrentUser extends User {
+public class CurrentUser extends User{
     private static CurrentUser sUser;
     private Credentials mCredentials;
     private String mCookie;
+    private String mModhash;
 
     public static CurrentUser getInstance() {
-        if (sUser == null) {
-            sUser = new CurrentUser();
-        }
         return sUser;
+    }
+
+    public String getModhash() {
+        return mModhash;
+    }
+
+    public void setModhash(String modhash) {
+        this.mModhash = modhash;
     }
 
     public String getCookie() {
@@ -31,15 +36,8 @@ public class CurrentUser extends User {
         return this;
     }
 
-    public LoginConnection connectWithReddit() {
-        return new LoginConnection(mCredentials);
-    }
-
-    public LoginConnection connectWithReddit(ConnectionResult results, Context context) {
-        return new LoginConnection(mCredentials, results, context);
-    }
-
-    public LoginConnection connectWithReddit(ConnectionResult results) {
-        return new LoginConnection(mCredentials, results);
+    public Connection login(Context context) {
+        return new Connection("http://www.reddit.com/api/login", context)
+                .setParams(mCredentials.convertPasswordAndUser());
     }
 }

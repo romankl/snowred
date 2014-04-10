@@ -12,7 +12,6 @@ public class User {
     private boolean is_gold;
     private boolean is_mod;
     private long link_karma;
-    private String modhash;
     private String name;
     private boolean over_18;
 
@@ -102,14 +101,6 @@ public class User {
 
     public void setLink_karma(long link_karma) {
         this.link_karma = link_karma;
-    }
-
-    public String getModhash() {
-        return modhash;
-    }
-
-    public void setModhash(String modhash) {
-        this.modhash = modhash;
     }
 
     public String getName() {
