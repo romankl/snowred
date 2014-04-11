@@ -2,15 +2,20 @@ package eu.roklapps.snowred.app.api.reddit.model;
 
 import android.content.Context;
 
-import eu.roklapps.snowred.app.api.reddit.access.Connection;
+import com.google.gson.JsonObject;
 
-public class CurrentUser extends User{
+import eu.roklapps.snowred.app.api.reddit.access.Connection;
+import eu.roklapps.snowred.app.api.reddit.callbacks.Result;
+
+public class CurrentUser extends User {
     private static CurrentUser sUser;
     private Credentials mCredentials;
     private String mCookie;
     private String mModhash;
 
     public static CurrentUser getInstance() {
+        if (sUser == null)
+            sUser = new CurrentUser();
         return sUser;
     }
 
@@ -36,8 +41,20 @@ public class CurrentUser extends User{
         return this;
     }
 
-    public Connection login(Context context) {
-        return new Connection("http://www.reddit.com/api/login", context)
-                .setParams(mCredentials.convertPasswordAndUser());
+    public void login(final Context context) {
+        Result loginResult = new Result() {
+            @Override
+            public void result(JsonObject jsonObject) {
+                JsonObject object = jsonObject.get("json").getAsJsonObject().get("data").getAsJsonObject();
+
+                CurrentUser.sUser.setModhash(object.get("modhash").toString());
+                CurrentUser.sUser.setCookie(object.get("cookie").toString());
+            }
+        };
+
+        new Connection("http://www.reddit.com/api/login", context)
+                .setParams(mCredentials.convertPasswordAndUser())
+                .setCallback(loginResult)
+                .performOperation();
     }
 }

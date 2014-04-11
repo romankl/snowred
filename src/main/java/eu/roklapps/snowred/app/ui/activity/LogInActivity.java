@@ -2,13 +2,15 @@ package eu.roklapps.snowred.app.ui.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 import eu.roklapps.snowred.app.R;
+import eu.roklapps.snowred.app.api.reddit.model.Credentials;
+import eu.roklapps.snowred.app.api.reddit.model.CurrentUser;
 
 public class LogInActivity extends Activity implements View.OnClickListener{
 
@@ -20,28 +22,22 @@ public class LogInActivity extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
+
+        mPassword = (EditText) findViewById(R.id.password);
+        mUsername = (EditText) findViewById(R.id.username);
+
         mLoginButton = (Button) findViewById(R.id.login);
         mLoginButton.setOnClickListener(this);
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.log_in, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     @Override
     public void onClick(View view) {
+        Credentials credentials = new Credentials(mPassword.getText().toString(), mUsername.getText().toString());
 
+        if (credentials.verifyCredentials()) {
+            CurrentUser.getInstance().setCredentials(credentials).login(this);
+        } else {
+            Crouton.makeText(this, R.string.username_and_password, Style.ALERT).show();
+        }
     }
 }

@@ -1,6 +1,6 @@
 package eu.roklapps.snowred.app.api.reddit.model;
 
-public class User {
+public class User extends Thing {
     private long comment_karma;
     private long created;
     private long created_utc;

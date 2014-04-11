@@ -1,5 +1,7 @@
 package eu.roklapps.snowred.app.api.reddit.callbacks;
 
-public interface Result {
-    public void resultOfConnection();
+import com.google.gson.JsonObject;
+
+public interface Result<T> {
+    public void result(JsonObject jsonObject);
 }

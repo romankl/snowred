@@ -39,6 +39,10 @@ public class Credentials {
         this.mUsername = mUsername;
     }
 
+    public boolean verifyCredentials() {
+        return (mPassword.length() > 0 && !mPassword.isEmpty()) && ((mUsername.length() > 0) && !mUsername.isEmpty());
+    }
+
     public String getPassword() {
         return mPassword;
     }
