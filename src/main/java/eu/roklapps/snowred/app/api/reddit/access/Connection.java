@@ -1,7 +1,6 @@
 package eu.roklapps.snowred.app.api.reddit.access;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
@@ -57,8 +56,6 @@ public class Connection {
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject json) {
-                        Log.d("Connection", json.get("json").getAsJsonObject().get("data").toString());
-
                         if (mResult != null) {
                             mResult.result(json);
                         }
