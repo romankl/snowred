@@ -30,6 +30,20 @@ public class Credentials {
         return map;
     }
 
+    public Map<String, List<String>> getCookieAndModhash() {
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
+        List<String> param = new ArrayList<String>();
+        param.add(mCookie);
+        map.put("reddit_session", param);
+
+        param = new ArrayList<String>();
+
+        param.add(mModhash);
+        map.put("modhash", param);
+
+        return map;
+    }
+
     public String getUsername() {
 
         return mUsername;
@@ -40,7 +54,8 @@ public class Credentials {
     }
 
     public boolean verifyCredentials() {
-        return (mPassword.length() > 0 && !mPassword.isEmpty()) && ((mUsername.length() > 0) && !mUsername.isEmpty());
+        return (mPassword.length() > 0 && !mPassword.isEmpty()) &&
+                ((mUsername.length() > 0) && !mUsername.isEmpty());
     }
 
     public String getPassword() {

@@ -12,7 +12,7 @@ import eu.roklapps.snowred.app.R;
 import eu.roklapps.snowred.app.api.reddit.model.Credentials;
 import eu.roklapps.snowred.app.api.reddit.model.CurrentUser;
 
-public class LogInActivity extends Activity implements View.OnClickListener{
+public class LogInActivity extends Activity implements View.OnClickListener {
 
     private Button mLoginButton;
     private EditText mPassword;
@@ -28,12 +28,18 @@ public class LogInActivity extends Activity implements View.OnClickListener{
 
         mLoginButton = (Button) findViewById(R.id.login);
         mLoginButton.setOnClickListener(this);
+
+        findViewById(R.id.about).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CurrentUser.getInstance().aboutUser(LogInActivity.this);
+            }
+        });
     }
 
     @Override
     public void onClick(View view) {
         Credentials credentials = new Credentials(mPassword.getText().toString(), mUsername.getText().toString());
-
         if (credentials.verifyCredentials()) {
             CurrentUser.getInstance().setCredentials(credentials).login(this);
         } else {

@@ -2,6 +2,8 @@ package eu.roklapps.snowred.app.api.reddit.model;
 
 import android.content.Context;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import eu.roklapps.snowred.app.api.reddit.access.Connection;
@@ -35,6 +37,10 @@ public class CurrentUser extends User {
         this.mCookie = mCookie;
     }
 
+    public Credentials getCredentials() {
+        return mCredentials;
+    }
+
     public CurrentUser setCredentials(Credentials credentials) {
         this.mCredentials = credentials;
 
@@ -46,15 +52,25 @@ public class CurrentUser extends User {
             @Override
             public void result(JsonObject jsonObject) {
                 JsonObject object = jsonObject.get("json").getAsJsonObject().get("data").getAsJsonObject();
-
-                CurrentUser.sUser.setModhash(object.get("modhash").toString());
-                CurrentUser.sUser.setCookie(object.get("cookie").toString());
+                mCredentials.setModhash(object.get("modhash").toString());
+                mCredentials.setCookie(object.get("cookie").toString());
             }
         };
 
         new Connection("http://www.reddit.com/api/login", context)
                 .setParams(mCredentials.convertPasswordAndUser())
                 .setCallback(loginResult)
-                .performOperation();
+                .performPostOperation();
+    }
+
+    public void aboutUser(final Context context) {
+        Result result = new Result() {
+            @Override
+            public void result(JsonObject jsonObject) {
+                JsonElement element = jsonObject.get("data");
+                sUser = new Gson().fromJson(element, CurrentUser.class);
+            }
+        };
+        super.aboutUser(mCredentials.getUsername(), context, result);
     }
 }

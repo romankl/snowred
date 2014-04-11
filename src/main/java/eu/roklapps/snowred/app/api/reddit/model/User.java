@@ -1,6 +1,11 @@
 package eu.roklapps.snowred.app.api.reddit.model;
 
-public class User extends Thing {
+import android.content.Context;
+
+import eu.roklapps.snowred.app.api.reddit.access.Connection;
+import eu.roklapps.snowred.app.api.reddit.callbacks.Result;
+
+public class User {
     private long comment_karma;
     private long created;
     private long created_utc;
@@ -117,5 +122,13 @@ public class User extends Thing {
 
     public void setOver_18(boolean over_18) {
         this.over_18 = over_18;
+    }
+
+    public void aboutUser(String username, Context context, Result result) {
+        Connection connection = new Connection("http://www.reddit.com/user/" + username + "/about.json", context);
+        if (CurrentUser.getInstance().getCredentials() != null) {
+            connection.setParams(CurrentUser.getInstance().getCredentials().getCookieAndModhash());
+        }
+        connection.setCallback(result).performGetOperation();
     }
 }

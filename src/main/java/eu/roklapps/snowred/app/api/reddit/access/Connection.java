@@ -49,7 +49,20 @@ public class Connection {
         this.mParams.put("api_type", api);
     }
 
-    public void performOperation() {
+    public void performGetOperation() {
+        Ion.with(mContext, mUrl)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject json) {
+                        if (mResult != null) {
+                            mResult.result(json);
+                        }
+                    }
+                });
+    }
+
+    public void performPostOperation() {
         Ion.with(mContext, mUrl)
                 .setMultipartParameters(mParams)
                 .asJsonObject()
