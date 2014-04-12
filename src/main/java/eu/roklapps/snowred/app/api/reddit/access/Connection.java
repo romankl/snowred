@@ -51,6 +51,7 @@ public class Connection {
 
     public void performGetOperation() {
         Ion.with(mContext, mUrl)
+                .setHeader("User-Agent", "SnowRed")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -64,6 +65,7 @@ public class Connection {
 
     public void performPostOperation() {
         Ion.with(mContext, mUrl)
+                .setHeader("User-Agent", "SnowRed")
                 .setMultipartParameters(mParams)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
