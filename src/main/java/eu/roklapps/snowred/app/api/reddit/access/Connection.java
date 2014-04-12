@@ -10,21 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import eu.roklapps.snowred.app.api.reddit.callbacks.Result;
 import eu.roklapps.snowred.app.connection.NetworkConnection;
 
 public class Connection {
     private Map<String, List<String>> mParams;
     private Context mContext;
     private String mUrl;
-    private Result mResult;
+    private FutureCallback<JsonObject> mResult;
 
     public Connection(String urlEnd, Context context) {
         this.mUrl = urlEnd;
         this.mContext = context;
     }
 
-    public Connection setCallback(Result mResult) {
+    public Connection setCallback(FutureCallback<JsonObject> mResult) {
         this.mResult = mResult;
 
         return this;
@@ -55,14 +54,7 @@ public class Connection {
             Ion.with(mContext, mUrl)
                     .setHeader("User-Agent", "SnowRed")
                     .asJsonObject()
-                    .setCallback(new FutureCallback<JsonObject>() {
-                        @Override
-                        public void onCompleted(Exception e, JsonObject json) {
-                            if (mResult != null) {
-                                mResult.result(json);
-                            }
-                        }
-                    });
+                    .setCallback(mResult);
         }
     }
 
@@ -72,14 +64,7 @@ public class Connection {
                     .setHeader("User-Agent", "SnowRed")
                     .setMultipartParameters(mParams)
                     .asJsonObject()
-                    .setCallback(new FutureCallback<JsonObject>() {
-                        @Override
-                        public void onCompleted(Exception e, JsonObject json) {
-                            if (mResult != null) {
-                                mResult.result(json);
-                            }
-                        }
-                    });
+                    .setCallback(mResult);
         }
     }
 }

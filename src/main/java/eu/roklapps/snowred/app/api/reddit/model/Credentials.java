@@ -53,7 +53,7 @@ public class Credentials {
         this.mUsername = mUsername;
     }
 
-    public boolean verifyCredentials() {
+    public boolean verify() {
         return (mPassword.length() > 0 && !mPassword.isEmpty()) &&
                 ((mUsername.length() > 0) && !mUsername.isEmpty());
     }

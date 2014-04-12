@@ -2,8 +2,10 @@ package eu.roklapps.snowred.app.api.reddit.model;
 
 import android.content.Context;
 
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+
 import eu.roklapps.snowred.app.api.reddit.access.Connection;
-import eu.roklapps.snowred.app.api.reddit.callbacks.Result;
 
 public class User {
     private long comment_karma;
@@ -124,7 +126,7 @@ public class User {
         this.over_18 = over_18;
     }
 
-    public void aboutUser(String username, Context context, Result result) {
+    public void aboutUser(String username, Context context, FutureCallback<JsonObject> result) {
         Connection connection = new Connection("http://www.reddit.com/user/" + username + "/about.json", context);
         if (CurrentUser.getCredentials() != null) {
             connection.setParams(CurrentUser.getInstance().getCredentials().getCookieAndModhash());

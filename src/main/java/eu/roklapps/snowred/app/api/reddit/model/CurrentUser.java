@@ -5,9 +5,9 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
 
 import eu.roklapps.snowred.app.api.reddit.access.Connection;
-import eu.roklapps.snowred.app.api.reddit.callbacks.Result;
 
 public class CurrentUser extends User {
     private static CurrentUser sUser;
@@ -34,18 +34,18 @@ public class CurrentUser extends User {
     }
 
     public void login(final Context context) {
-        Result loginResult = new Result() {
+        FutureCallback<JsonObject> result = new FutureCallback<JsonObject>() {
             @Override
-            public void result(JsonObject jsonObject) {
-                JsonObject object = jsonObject.get("json").getAsJsonObject().get("data").getAsJsonObject();
+            public void onCompleted(Exception e, JsonObject result) {
+                JsonObject object = result.get("json").getAsJsonObject().get("data").getAsJsonObject();
                 sUser.mCredentials.setModhash(object.get("modhash").toString());
                 sUser.mCredentials.setCookie(object.get("cookie").toString());
             }
         };
-        login(context, loginResult);
+        login(context, result);
     }
 
-    public void login(final Context context, Result result) {
+    public void login(final Context context, FutureCallback<JsonObject> result) {
         new Connection("http://www.reddit.com/api/login", context)
                 .setParams(mCredentials.convertPasswordAndUser())
                 .setCallback(result)
@@ -53,17 +53,17 @@ public class CurrentUser extends User {
     }
 
     public void aboutUser(final Context context) {
-        Result result = new Result() {
+        FutureCallback<JsonObject> result = new FutureCallback<JsonObject>() {
             @Override
-            public void result(JsonObject jsonObject) {
-                JsonElement element = jsonObject.get("data");
+            public void onCompleted(Exception e, JsonObject result) {
+                JsonElement element = result.get("data");
                 sUser = new Gson().fromJson(element, CurrentUser.class);
             }
         };
         super.aboutUser(mCredentials.getUsername(), context, result);
     }
 
-    public void aboutUser(final Context context, Result result) {
+    public void aboutUser(final Context context, FutureCallback<JsonObject> result) {
         super.aboutUser(mCredentials.getUsername(), context, result);
     }
 }

@@ -9,15 +9,15 @@ import android.widget.EditText;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 import eu.roklapps.snowred.app.R;
-import eu.roklapps.snowred.app.api.reddit.callbacks.Result;
 import eu.roklapps.snowred.app.api.reddit.model.Credentials;
 import eu.roklapps.snowred.app.api.reddit.model.CurrentUser;
 
-public class LogInActivity extends Activity implements View.OnClickListener, Result {
+public class LogInActivity extends Activity implements View.OnClickListener {
 
     private static final String TAG = "LoginActivity";
     private Button mLoginButton;
@@ -38,17 +38,28 @@ public class LogInActivity extends Activity implements View.OnClickListener, Res
 
     @Override
     public void onClick(View view) {
+        final FutureCallback<JsonObject> followUp = new FutureCallback<JsonObject>() {
+            @Override
+            public void onCompleted(Exception e, JsonObject result) {
+                JsonElement element = result.get("data");
+                CurrentUser.setUser(new Gson().fromJson(element, CurrentUser.class));
+
+                finish();
+            }
+        };
+
         Credentials credentials = new Credentials(mPassword.getText().toString(), mUsername.getText().toString());
 
-        if (credentials.verifyCredentials()) {
-            CurrentUser.getInstance().setCredentials(credentials).login(this, new Result() {
+        if (credentials.verify()) {
+            CurrentUser.getInstance().setCredentials(credentials).login(this, new FutureCallback<JsonObject>() {
                 @Override
-                public void result(JsonObject jsonObject) {
-                    if (checkForErrorsInResponse(jsonObject)) {
-                        setupError(jsonObject);
+                public void onCompleted(Exception e, JsonObject result) {
+
+                    if (checkForErrorsInResponse(result)) {
+                        setupError(result);
                     } else {
-                        prepareCurrentUser(jsonObject);
-                        CurrentUser.getInstance().aboutUser(LogInActivity.this, LogInActivity.this);
+                        prepareCurrentUser(result);
+                        CurrentUser.getInstance().aboutUser(LogInActivity.this, followUp);
                     }
                 }
             });
@@ -59,14 +70,6 @@ public class LogInActivity extends Activity implements View.OnClickListener, Res
 
     private boolean checkForErrorsInResponse(JsonObject jsonObject) {
         return jsonObject.getAsJsonObject("json").getAsJsonArray("errors").size() > 0;
-    }
-
-    @Override
-    public void result(JsonObject jsonObject) {
-        JsonElement element = jsonObject.get("data");
-        CurrentUser.setUser(new Gson().fromJson(element, CurrentUser.class));
-
-        finish();
     }
 
     private void setupError(JsonObject jsonObject) {
