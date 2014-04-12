@@ -12,8 +12,6 @@ import eu.roklapps.snowred.app.api.reddit.callbacks.Result;
 public class CurrentUser extends User {
     private static CurrentUser sUser;
     private Credentials mCredentials;
-    private String mCookie;
-    private String mModhash;
 
     public static CurrentUser getInstance() {
         if (sUser == null)
@@ -21,28 +19,16 @@ public class CurrentUser extends User {
         return sUser;
     }
 
-    public String getModhash() {
-        return mModhash;
+    public static void setUser(CurrentUser user) {
+        sUser = user;
     }
 
-    public void setModhash(String modhash) {
-        this.mModhash = modhash;
-    }
-
-    public String getCookie() {
-        return mCookie;
-    }
-
-    public void setCookie(String mCookie) {
-        this.mCookie = mCookie;
-    }
-
-    public Credentials getCredentials() {
-        return mCredentials;
+    public static Credentials getCredentials() {
+        return sUser.mCredentials;
     }
 
     public CurrentUser setCredentials(Credentials credentials) {
-        this.mCredentials = credentials;
+        sUser.mCredentials = credentials;
 
         return this;
     }
@@ -52,14 +38,17 @@ public class CurrentUser extends User {
             @Override
             public void result(JsonObject jsonObject) {
                 JsonObject object = jsonObject.get("json").getAsJsonObject().get("data").getAsJsonObject();
-                mCredentials.setModhash(object.get("modhash").toString());
-                mCredentials.setCookie(object.get("cookie").toString());
+                sUser.mCredentials.setModhash(object.get("modhash").toString());
+                sUser.mCredentials.setCookie(object.get("cookie").toString());
             }
         };
+        login(context, loginResult);
+    }
 
+    public void login(final Context context, Result result) {
         new Connection("http://www.reddit.com/api/login", context)
                 .setParams(mCredentials.convertPasswordAndUser())
-                .setCallback(loginResult)
+                .setCallback(result)
                 .performPostOperation();
     }
 
@@ -71,6 +60,10 @@ public class CurrentUser extends User {
                 sUser = new Gson().fromJson(element, CurrentUser.class);
             }
         };
+        super.aboutUser(mCredentials.getUsername(), context, result);
+    }
+
+    public void aboutUser(final Context context, Result result) {
         super.aboutUser(mCredentials.getUsername(), context, result);
     }
 }

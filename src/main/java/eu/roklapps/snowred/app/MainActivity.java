@@ -14,9 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
-import eu.roklapps.snowred.app.connection.NetworkConnection;
 import eu.roklapps.snowred.app.ui.activity.LogInActivity;
 import eu.roklapps.snowred.app.ui.fragments.NavigationDrawerFragment;
 
@@ -31,10 +28,6 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if (!NetworkConnection.checkConnection(this)) {
-            Crouton.makeText(this, R.string.no_connection, Style.ALERT).show();
-        }
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -96,6 +89,10 @@ public class MainActivity extends Activity
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     public static class PlaceholderFragment extends Fragment {
         private static final String ARG_SECTION_NUMBER = "section_number";

@@ -126,7 +126,7 @@ public class User {
 
     public void aboutUser(String username, Context context, Result result) {
         Connection connection = new Connection("http://www.reddit.com/user/" + username + "/about.json", context);
-        if (CurrentUser.getInstance().getCredentials() != null) {
+        if (CurrentUser.getCredentials() != null) {
             connection.setParams(CurrentUser.getInstance().getCredentials().getCookieAndModhash());
         }
         connection.setCallback(result).performGetOperation();
