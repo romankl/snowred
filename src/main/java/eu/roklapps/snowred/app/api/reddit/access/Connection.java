@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.roklapps.snowred.app.api.reddit.callbacks.Result;
+import eu.roklapps.snowred.app.connection.NetworkConnection;
 
 public class Connection {
     private Map<String, List<String>> mParams;
@@ -50,31 +51,35 @@ public class Connection {
     }
 
     public void performGetOperation() {
-        Ion.with(mContext, mUrl)
-                .setHeader("User-Agent", "SnowRed")
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject json) {
-                        if (mResult != null) {
-                            mResult.result(json);
+        if (NetworkConnection.checkConnectionWithWarning(mContext)) {
+            Ion.with(mContext, mUrl)
+                    .setHeader("User-Agent", "SnowRed")
+                    .asJsonObject()
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception e, JsonObject json) {
+                            if (mResult != null) {
+                                mResult.result(json);
+                            }
                         }
-                    }
-                });
+                    });
+        }
     }
 
     public void performPostOperation() {
-        Ion.with(mContext, mUrl)
-                .setHeader("User-Agent", "SnowRed")
-                .setMultipartParameters(mParams)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject json) {
-                        if (mResult != null) {
-                            mResult.result(json);
+        if (NetworkConnection.checkConnectionWithWarning(mContext)) {
+            Ion.with(mContext, mUrl)
+                    .setHeader("User-Agent", "SnowRed")
+                    .setMultipartParameters(mParams)
+                    .asJsonObject()
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception e, JsonObject json) {
+                            if (mResult != null) {
+                                mResult.result(json);
+                            }
                         }
-                    }
-                });
+                    });
+        }
     }
 }
