@@ -14,9 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import eu.roklapps.snowred.app.api.reddit.model.Link;
 import eu.roklapps.snowred.app.ui.activity.LogInActivity;
+import eu.roklapps.snowred.app.ui.fragments.BrowserFragment;
 import eu.roklapps.snowred.app.ui.fragments.LinkFragment;
 import eu.roklapps.snowred.app.ui.fragments.NavigationDrawerFragment;
+import eu.roklapps.snowred.app.util.Util;
 
 
 public class MainActivity extends Activity
@@ -29,6 +32,8 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Util.enableStrictMode();
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -49,10 +54,10 @@ public class MainActivity extends Activity
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        FragmentManager fragmentManager = getFragmentManager();
+        /*FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
+                .commit();*/
     }
 
     public void onSectionAttached(int number) {
@@ -99,8 +104,15 @@ public class MainActivity extends Activity
     }
 
     @Override
-    public void linkClicked(String id) {
+    public void linkClicked(Link link) {
+        if (!link.isIs_self()) {
+            BrowserFragment fragment = BrowserFragment.newInstance(link.getUrl());
 
+            getFragmentManager().beginTransaction()
+                    .addToBackStack("listing")
+                    .replace(R.id.container, fragment)
+                    .commit();
+        }
     }
 
     public static class PlaceholderFragment extends Fragment {

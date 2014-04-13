@@ -7,6 +7,10 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
+import android.widget.ListView;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -65,6 +69,17 @@ public class LinkFragment extends ListFragment {
         Link.getLinksForSubreddit(getActivity(), mSubredditName, result);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        Log.d(TAG, "Position: " + position + " id: " + id);
+
+        mListener.linkClicked((Link) getListAdapter().getItem(position));
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -93,7 +108,7 @@ public class LinkFragment extends ListFragment {
     }
 
     public interface OnLinkClickListener {
-        public void linkClicked(String id);
+        public void linkClicked(Link link);
     }
 
     private class LinkPreparation extends AsyncTask<JsonObject, Void, Void> {
