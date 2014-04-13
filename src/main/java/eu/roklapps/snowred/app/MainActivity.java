@@ -15,11 +15,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import eu.roklapps.snowred.app.ui.activity.LogInActivity;
+import eu.roklapps.snowred.app.ui.fragments.LinkFragment;
 import eu.roklapps.snowred.app.ui.fragments.NavigationDrawerFragment;
 
 
 public class MainActivity extends Activity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LinkFragment.OnLinkClickListener {
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private CharSequence mTitle;
@@ -36,6 +37,14 @@ public class MainActivity extends Activity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+        FragmentManager manager = getFragmentManager();
+
+        Fragment listFragment = manager.findFragmentByTag("listing");
+        if (listFragment == null) {
+            manager.beginTransaction()
+                    .add(R.id.container, LinkFragment.newInstance(""), "listing")
+                    .commit();
+        }
     }
 
     @Override
@@ -83,15 +92,15 @@ public class MainActivity extends Activity
         switch (item.getItemId()) {
             case R.id.menu_action_login:
                 Intent i = new Intent(this, LogInActivity.class);
-                startActivity(i);
+                startActivityForResult(i, LogInActivity.LOGIN_REQUEST);
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public void linkClicked(String id) {
+
     }
 
     public static class PlaceholderFragment extends Fragment {

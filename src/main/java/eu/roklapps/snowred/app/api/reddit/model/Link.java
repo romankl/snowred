@@ -1,5 +1,12 @@
 package eu.roklapps.snowred.app.api.reddit.model;
 
+import android.content.Context;
+
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+
+import eu.roklapps.snowred.app.api.reddit.access.Connection;
+
 public class Link {
     String author;
     private String clicked;
@@ -16,6 +23,34 @@ public class Link {
     private String selftext_html;
     private int score;
     private int num_comments;
+    private String title;
+    private long created_utc;
+
+    public static void getLinksForSubreddit(Context context, String subreddit, FutureCallback<JsonObject> result) {
+        Connection connection = new Connection("http://reddit.com/" + subreddit + ".json", context);
+
+        if (CurrentUser.getInstance().isLoggedIn()) {
+            connection.setParams(CurrentUser.getCredentials().getCookieAndModhash());
+        }
+        connection.setCallback(result)
+                .performGetOperation();
+    }
+
+    public long getCreated_utc() {
+        return created_utc;
+    }
+
+    public void setCreated_utc(long created_utc) {
+        this.created_utc = created_utc;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public String getAuthor() {
         return author;

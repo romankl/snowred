@@ -1,6 +1,7 @@
 package eu.roklapps.snowred.app.ui.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import eu.roklapps.snowred.app.api.reddit.model.CurrentUser;
 
 public class LogInActivity extends Activity implements View.OnClickListener {
 
+    public static final int LOGIN_REQUEST = 100;
     private static final String TAG = "LoginActivity";
     private Button mLoginButton;
     private EditText mPassword;
@@ -44,6 +46,8 @@ public class LogInActivity extends Activity implements View.OnClickListener {
                 JsonElement element = result.get("data");
                 CurrentUser.setUser(new Gson().fromJson(element, CurrentUser.class));
 
+                Intent returnIntent = new Intent();
+                setResult(RESULT_OK, returnIntent);
                 finish();
             }
         };

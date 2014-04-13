@@ -33,6 +33,10 @@ public class CurrentUser extends User {
         return this;
     }
 
+    public boolean isLoggedIn() {
+        return mCredentials != null;
+    }
+
     public void login(final Context context) {
         FutureCallback<JsonObject> result = new FutureCallback<JsonObject>() {
             @Override
