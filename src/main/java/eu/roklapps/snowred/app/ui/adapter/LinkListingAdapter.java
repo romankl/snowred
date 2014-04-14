@@ -5,7 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.koushikdutta.ion.Ion;
 
 import java.util.List;
 
@@ -45,6 +48,7 @@ public class LinkListingAdapter extends ArrayAdapter<Link> {
             holder.numberOfComments = (TextView) convertView.findViewById(R.id.comments);
             holder.nameOfSubreddit = (TextView) convertView.findViewById(R.id.subreddit);
             holder.creationDate = (TextView) convertView.findViewById(R.id.creationdate);
+            holder.thumbnail = (ImageView) convertView.findViewById(R.id.thumbnail);
 
             convertView.setTag(holder);
         } else {
@@ -59,6 +63,14 @@ public class LinkListingAdapter extends ArrayAdapter<Link> {
         holder.nameOfSubreddit.setText(linkModel.getSubreddit());
         holder.creationDate.setText(String.valueOf(linkModel.getCreated_utc()));
 
+        String thumbnailUrl = linkModel.getThumbnail();
+        if (thumbnailUrl.length() >= 0 && !thumbnailUrl.isEmpty()) {
+            Ion.with(holder.thumbnail)
+                    .placeholder(R.drawable.ic_launcher)
+                    .load(thumbnailUrl);
+        } else {
+            holder.thumbnail.setImageBitmap(null);
+        }
         return convertView;
     }
 
@@ -69,5 +81,6 @@ public class LinkListingAdapter extends ArrayAdapter<Link> {
         TextView numberOfComments;
         TextView nameOfSubreddit;
         TextView creationDate;
+        ImageView thumbnail;
     }
 }

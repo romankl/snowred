@@ -7,9 +7,11 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
@@ -25,15 +27,26 @@ import eu.roklapps.snowred.app.R;
 import eu.roklapps.snowred.app.api.reddit.model.Link;
 import eu.roklapps.snowred.app.ui.activity.LogInActivity;
 import eu.roklapps.snowred.app.ui.adapter.LinkListingAdapter;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 
-public class LinkFragment extends ListFragment {
+public class LinkFragment extends ListFragment implements OnRefreshListener {
     private static final String SUBREDDIT_RELATIVE_NAME = "subreddit_relative_name";
     private static final String TAG = "LinkFragment";
+    private FutureCallback<JsonObject> mResult = new FutureCallback<JsonObject>() {
+        @Override
+        public void onCompleted(Exception e, JsonObject result) {
+            Log.d(TAG, result.toString());
+            new LinkPreparation().execute(result);
+        }
+    };
     private String mSubredditName;
     private OnLinkClickListener mListener;
     private List<Link> mLinks;
     private LinkListingAdapter mAdapter;
+    private PullToRefreshLayout mPullToRefreshLayout;
 
     public LinkFragment() {
     }
@@ -57,21 +70,30 @@ public class LinkFragment extends ListFragment {
             mSubredditName = getArguments().getString(SUBREDDIT_RELATIVE_NAME);
         }
 
-
-        FutureCallback<JsonObject> result = new FutureCallback<JsonObject>() {
-            @Override
-            public void onCompleted(Exception e, JsonObject result) {
-                Log.d(TAG, result.toString());
-                new LinkPreparation().execute(result);
-            }
-        };
-
-        Link.getLinksForSubreddit(getActivity(), mSubredditName, result);
+        Link.getLinksForSubreddit(getActivity(), mSubredditName, mResult);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_link_list, container, false);
+
+        mPullToRefreshLayout = (PullToRefreshLayout) view.findViewById(R.id.refresh_layout);
+        ActionBarPullToRefresh.from(getActivity())
+                .allChildrenArePullable()
+                .listener(this)
+                .setup(mPullToRefreshLayout);
+
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -107,6 +129,11 @@ public class LinkFragment extends ListFragment {
         }
     }
 
+    @Override
+    public void onRefreshStarted(View view) {
+        Link.getLinksForSubreddit(getActivity(), mSubredditName, mResult);
+    }
+
     public interface OnLinkClickListener {
         public void linkClicked(Link link);
     }
@@ -134,6 +161,7 @@ public class LinkFragment extends ListFragment {
         protected void onPostExecute(Void aVoid) {
             mAdapter = new LinkListingAdapter(getActivity(), R.layout.single_link_item, mLinks);
             setListAdapter(mAdapter);
+            mPullToRefreshLayout.setRefreshComplete();
         }
     }
 }

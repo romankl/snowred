@@ -4,6 +4,7 @@ import android.os.Build;
 import android.os.StrictMode;
 
 import eu.roklapps.snowred.app.MainActivity;
+import eu.roklapps.snowred.app.ui.fragments.BrowserFragment;
 import eu.roklapps.snowred.app.ui.fragments.LinkFragment;
 
 public class Util {
@@ -24,7 +25,8 @@ public class Util {
         threadPolicyBuilder.penaltyFlashScreen();
         vmPolicyBuilder
                 .setClassInstanceLimit(MainActivity.class, 1)
-                .setClassInstanceLimit(LinkFragment.class, 1);
+                .setClassInstanceLimit(LinkFragment.class, 1)
+                .setClassInstanceLimit(BrowserFragment.class, 1);
 
 
         StrictMode.setThreadPolicy(threadPolicyBuilder.build());

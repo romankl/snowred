@@ -27,32 +27,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/comments"
-        android:text="title" />
+        android:layout_marginLeft="4dp"
+        android:layout_toLeftOf="@+id/thumbnail"
+        android:layout_toRightOf="@+id/scorePoints"
+        android:text="title"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/author"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/subreddit"
+        android:layout_alignStart="@+id/subreddit"
         android:layout_below="@+id/title"
-        android:layout_toRightOf="@+id/comments"
         android:text="author" />
 
     <TextView
         android:id="@+id/subreddit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/author"
+        android:layout_below="@+id/author"
         android:layout_marginLeft="12dp"
-        android:layout_toRightOf="@+id/author"
+        android:layout_toRightOf="@+id/creationdate"
         android:text="subreddit" />
 
     <TextView
         android:id="@+id/creationdate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/subreddit"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/subreddit"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/comments"
         android:text="creationdate" />
+
+    <ImageView
+        android:id="@+id/thumbnail"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" />
 </RelativeLayout>
