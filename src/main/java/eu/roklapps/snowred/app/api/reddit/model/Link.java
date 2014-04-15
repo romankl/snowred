@@ -12,7 +12,7 @@ public class Link {
     private String clicked;
     private String domain;
     private boolean hidden;
-    private String is_self;
+    private boolean is_self;
     private boolean likes;
     private boolean stickied;
     private boolean saved;
@@ -30,10 +30,18 @@ public class Link {
         Connection connection = new Connection("http://reddit.com/" + subreddit + ".json", context);
 
         if (CurrentUser.getInstance().isLoggedIn()) {
-            connection.setParams(CurrentUser.getCredentials().getCookieAndModhash());
+            connection.setParams(CurrentUser.getCredentials().getCookieAndModHash());
         }
         connection.setCallback(result)
-                .performGetOperation();
+                .performOperation();
+    }
+
+    public boolean isIs_self() {
+        return is_self;
+    }
+
+    public void setIs_self(boolean is_self) {
+        this.is_self = is_self;
     }
 
     public long getCreated_utc() {
@@ -82,14 +90,6 @@ public class Link {
 
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
-    }
-
-    public String getIs_self() {
-        return is_self;
-    }
-
-    public void setIs_self(String is_self) {
-        this.is_self = is_self;
     }
 
     public boolean isLikes() {

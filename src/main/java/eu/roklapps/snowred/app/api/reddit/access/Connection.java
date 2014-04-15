@@ -6,14 +6,12 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import org.apache.http.NameValuePair;
 
 import eu.roklapps.snowred.app.connection.NetworkConnection;
 
 public class Connection {
-    private Map<String, List<String>> mParams;
+    private NameValuePair[] mParams;
     private Context mContext;
     private String mUrl;
     private FutureCallback<JsonObject> mResult;
@@ -35,34 +33,20 @@ public class Connection {
         return this;
     }
 
-    public Connection setParams(Map<String, List<String>> mParams) {
-        this.mParams = mParams;
-
-        addApiType();
+    public Connection setParams(NameValuePair... pair) {
+        this.mParams = pair;
 
         return this;
     }
 
-    private void addApiType() {
-        List<String> api = new ArrayList<String>();
-        api.add("json");
-        this.mParams.put("api_type", api);
-    }
-
-    public void performGetOperation() {
-        if (NetworkConnection.checkConnectionWithWarning(mContext)) {
-            Ion.with(mContext, mUrl)
-                    .setHeader("User-Agent", "SnowRed")
-                    .asJsonObject()
-                    .setCallback(mResult);
+    public void performOperation() {
+        if (mParams == null) {
+            mParams = new NameValuePair[0];
         }
-    }
 
-    public void performPostOperation() {
         if (NetworkConnection.checkConnectionWithWarning(mContext)) {
             Ion.with(mContext, mUrl)
-                    .setHeader("User-Agent", "SnowRed")
-                    .setMultipartParameters(mParams)
+                    .setHeader(mParams)
                     .asJsonObject()
                     .setCallback(mResult);
         }
