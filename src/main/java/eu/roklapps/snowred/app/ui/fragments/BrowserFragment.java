@@ -42,6 +42,8 @@ public class BrowserFragment extends Fragment {
         mWebView = (WebView) view.findViewById(R.id.webView);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.setWebViewClient(new WebViewClient());
+        mWebView.getSettings().setBuiltInZoomControls(true);
+        mWebView.getSettings().setDisplayZoomControls(false);
 
         if (savedInstanceState == null) {
             mWebView.loadUrl(mUrlToView);

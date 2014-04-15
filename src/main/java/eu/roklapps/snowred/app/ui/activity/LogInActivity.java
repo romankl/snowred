@@ -3,6 +3,7 @@ package eu.roklapps.snowred.app.ui.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,19 +37,39 @@ public class LogInActivity extends Activity implements View.OnClickListener {
 
         mLoginButton = (Button) findViewById(R.id.login);
         mLoginButton.setOnClickListener(this);
+
+        Button testButton = (Button) findViewById(R.id.button);
+        testButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CurrentUser.getInstance().mySubscribedSubreddits(LogInActivity.this, new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        if (e != null) {
+                            Log.d(TAG, e.getMessage() + " - " + e.getCause());
+                        } else {
+                            Log.d(TAG, result.toString());
+                        }
+                        Intent returnIntent = new Intent();
+                        setResult(RESULT_OK, returnIntent);
+                        finish();
+                    }
+                });
+            }
+        });
     }
 
     @Override
     public void onClick(View view) {
+        // final FutureCallback<JsonObject> subscribedSubs =
+
         final FutureCallback<JsonObject> followUp = new FutureCallback<JsonObject>() {
             @Override
             public void onCompleted(Exception e, JsonObject result) {
                 JsonElement element = result.get("data");
+                Credentials credentials = CurrentUser.getCredentials();
                 CurrentUser.setUser(new Gson().fromJson(element, CurrentUser.class));
-
-                Intent returnIntent = new Intent();
-                setResult(RESULT_OK, returnIntent);
-                finish();
+                CurrentUser.getInstance().setCredentials(credentials);
             }
         };
 
@@ -58,7 +79,6 @@ public class LogInActivity extends Activity implements View.OnClickListener {
             CurrentUser.getInstance().setCredentials(credentials).login(this, new FutureCallback<JsonObject>() {
                 @Override
                 public void onCompleted(Exception e, JsonObject result) {
-
                     if (checkForErrorsInResponse(result)) {
                         setupError(result);
                     } else {
@@ -85,7 +105,9 @@ public class LogInActivity extends Activity implements View.OnClickListener {
 
     private void prepareCurrentUser(JsonObject jsonObject) {
         JsonObject object = jsonObject.get("json").getAsJsonObject().get("data").getAsJsonObject();
-        CurrentUser.getCredentials().setModhash(object.get("modhash").toString());
-        CurrentUser.getCredentials().setCookie(object.get("cookie").toString());
+        String temp = object.get("modhash").getAsString();
+        CurrentUser.getCredentials().setModhash(temp);
+        temp = object.get("cookie").getAsString();
+        CurrentUser.getCredentials().setCookie(temp);
     }
 }

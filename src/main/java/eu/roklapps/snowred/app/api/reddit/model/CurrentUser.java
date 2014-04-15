@@ -6,12 +6,18 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.apache.http.NameValuePair;
+
+import java.util.List;
 
 import eu.roklapps.snowred.app.api.reddit.access.Connection;
 
 public class CurrentUser extends User {
     private static CurrentUser sUser;
     private Credentials mCredentials;
+    private List<Subreddit> mSubscribedSubreddits;
 
     public static CurrentUser getInstance() {
         if (sUser == null)
@@ -34,7 +40,7 @@ public class CurrentUser extends User {
     }
 
     public boolean isLoggedIn() {
-        return mCredentials != null;
+        return sUser.mCredentials != null;
     }
 
     public void login(final Context context) {
@@ -50,10 +56,12 @@ public class CurrentUser extends User {
     }
 
     public void login(final Context context, FutureCallback<JsonObject> result) {
+        NameValuePair[] header = mCredentials.convertPasswordAndUser();
+
         new Connection("http://www.reddit.com/api/login", context)
-                .setParams(mCredentials.convertPasswordAndUser())
+                .setParams(header)
                 .setCallback(result)
-                .performPostOperation();
+                .performOperation();
     }
 
     public void aboutUser(final Context context) {
@@ -69,5 +77,13 @@ public class CurrentUser extends User {
 
     public void aboutUser(final Context context, FutureCallback<JsonObject> result) {
         super.aboutUser(mCredentials.getUsername(), context, result);
+    }
+
+    public void mySubscribedSubreddits(final Context context, FutureCallback<JsonObject> result) {
+        Ion.with(context, "http://www.reddit.com/subreddits/mine/subscriber.json")
+                .setHeader("cookie", "reddit_session=" + sUser.mCredentials.getCookie())
+                .asJsonObject()
+                .setCallback(result);
+
     }
 }

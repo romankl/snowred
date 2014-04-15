@@ -1,9 +1,7 @@
 package eu.roklapps.snowred.app.api.reddit.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 public class Credentials {
     private String mUsername;
@@ -16,32 +14,25 @@ public class Credentials {
         this.mUsername = mUsername;
     }
 
-    public Map<String, List<String>> convertPasswordAndUser() {
-        Map<String, List<String>> map = new HashMap<String, List<String>>();
-        List<String> param = new ArrayList<String>();
-        param.add(mPassword);
-        map.put("passwd", param);
+    public NameValuePair[] convertPasswordAndUser() {
+        NameValuePair[] header = new NameValuePair[4];
 
-        param = new ArrayList<String>();
+        header[0] = new BasicNameValuePair("user", mUsername);
+        header[1] = new BasicNameValuePair("passwd", mPassword);
+        header[2] = new BasicNameValuePair("api_type", "json");
+        header[3] = new BasicNameValuePair("rem", "true");
 
-        param.add(mUsername);
-        map.put("user", param);
-
-        return map;
+        return header;
     }
 
-    public Map<String, List<String>> getCookieAndModhash() {
-        Map<String, List<String>> map = new HashMap<String, List<String>>();
-        List<String> param = new ArrayList<String>();
-        param.add(mCookie);
-        map.put("reddit_session", param);
+    public NameValuePair[] getCookieAndModHash() {
+        NameValuePair[] header = new NameValuePair[4];
+        header[0] = new BasicNameValuePair("User-Agent", "SnowRed");
+        header[1] = new BasicNameValuePair("cookie", "reddit_session" + mCookie);
+        header[2] = new BasicNameValuePair("uh", mModhash);
+        header[3] = new BasicNameValuePair("api_type", "json");
 
-        param = new ArrayList<String>();
-
-        param.add(mModhash);
-        map.put("modhash", param);
-
-        return map;
+        return header;
     }
 
     public String getUsername() {

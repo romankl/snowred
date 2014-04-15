@@ -5,6 +5,7 @@ import android.content.Context;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.builder.Builders;
 
 import org.apache.http.NameValuePair;
 
@@ -44,10 +45,14 @@ public class Connection {
             mParams = new NameValuePair[0];
         }
 
+        // TODO: Workaround to fix the npe mentioned in #201
         if (NetworkConnection.checkConnectionWithWarning(mContext)) {
-            Ion.with(mContext, mUrl)
-                    .setHeader(mParams)
-                    .asJsonObject()
+            Builders.Any.B ion = Ion.with(mContext, mUrl);
+            for (NameValuePair p : mParams) {
+                ion.setHeader(p.getName(), p.getValue());
+            }
+
+            ion.asJsonObject()
                     .setCallback(mResult);
         }
     }
