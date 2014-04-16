@@ -9,6 +9,9 @@ import com.koushikdutta.ion.builder.Builders;
 
 import org.apache.http.NameValuePair;
 
+import java.util.List;
+import java.util.Map;
+
 import eu.roklapps.snowred.app.connection.NetworkConnection;
 
 public class Connection {
@@ -54,6 +57,18 @@ public class Connection {
 
             ion.asJsonObject()
                     .setCallback(mResult);
+        }
+    }
+
+    @Deprecated
+    public void performWorkaroundOperation(Map<String, List<String>> header) {
+        if (NetworkConnection.checkConnectionWithWarning(mContext)) {
+            Ion.with(mContext, mUrl)
+                    .setHeader("User-Agent", "SnowRed")
+                    .setMultipartParameters(header)
+                    .asJsonObject()
+                    .setCallback(mResult);
+
         }
     }
 }

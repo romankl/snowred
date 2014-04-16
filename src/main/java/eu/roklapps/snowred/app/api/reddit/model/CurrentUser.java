@@ -61,7 +61,7 @@ public class CurrentUser extends User {
         new Connection("http://www.reddit.com/api/login", context)
                 .setParams(header)
                 .setCallback(result)
-                .performOperation();
+                .performWorkaroundOperation(mCredentials.convertPasswordAndUserAsMap());
     }
 
     public void aboutUser(final Context context) {

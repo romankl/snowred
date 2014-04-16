@@ -3,6 +3,11 @@ package eu.roklapps.snowred.app.api.reddit.model;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Credentials {
     private String mUsername;
     private String mPassword;
@@ -34,6 +39,26 @@ public class Credentials {
 
         return header;
     }
+
+    public Map<String, List<String>> convertPasswordAndUserAsMap() {
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
+        List<String> param = new ArrayList<String>();
+        param.add(mPassword);
+        map.put("passwd", param);
+
+        param = new ArrayList<String>();
+
+        param.add(mUsername);
+        map.put("user", param);
+
+        param = new ArrayList<String>();
+
+        param.add("json");
+        map.put("api_type", param);
+
+        return map;
+    }
+
 
     public String getUsername() {
 
