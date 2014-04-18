@@ -42,13 +42,4 @@
         android:hint="@string/text_username"
         android:inputType="text|textNoSuggestions|none" />
 
-    <Button
-        android:id="@+id/button"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/login"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="91dp"
-        android:text="New Button" />
 </RelativeLayout>

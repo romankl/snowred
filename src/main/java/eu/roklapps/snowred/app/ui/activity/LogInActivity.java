@@ -3,7 +3,6 @@ package eu.roklapps.snowred.app.ui.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,8 +17,10 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 import eu.roklapps.snowred.app.R;
 import eu.roklapps.snowred.app.api.reddit.model.Credentials;
 import eu.roklapps.snowred.app.api.reddit.model.CurrentUser;
+import eu.roklapps.snowred.app.asyncs.SubscribedRedditInsert;
+import eu.roklapps.snowred.app.asyncs.callback.AsyncResult;
 
-public class LogInActivity extends Activity implements View.OnClickListener {
+public class LogInActivity extends Activity implements View.OnClickListener, AsyncResult {
 
     public static final int LOGIN_REQUEST = 100;
     private static final String TAG = "LoginActivity";
@@ -37,32 +38,10 @@ public class LogInActivity extends Activity implements View.OnClickListener {
 
         mLoginButton = (Button) findViewById(R.id.login);
         mLoginButton.setOnClickListener(this);
-
-        Button testButton = (Button) findViewById(R.id.button);
-        testButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CurrentUser.getInstance().mySubscribedSubreddits(LogInActivity.this, new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
-                        if (e != null) {
-                            Log.d(TAG, e.getMessage() + " - " + e.getCause());
-                        } else {
-                            Log.d(TAG, result.toString());
-                        }
-                        Intent returnIntent = new Intent();
-                        setResult(RESULT_OK, returnIntent);
-                        finish();
-                    }
-                });
-            }
-        });
     }
 
     @Override
     public void onClick(View view) {
-        // final FutureCallback<JsonObject> subscribedSubs =
-
         final FutureCallback<JsonObject> followUp = new FutureCallback<JsonObject>() {
             @Override
             public void onCompleted(Exception e, JsonObject result) {
@@ -70,32 +49,58 @@ public class LogInActivity extends Activity implements View.OnClickListener {
                 Credentials credentials = CurrentUser.getCredentials();
                 CurrentUser.setUser(new Gson().fromJson(element, CurrentUser.class));
                 CurrentUser.getInstance().setCredentials(credentials);
+
+                CurrentUser.getInstance().
+                        mySubscribedSubreddits(LogInActivity.this, new FutureCallback<JsonObject>() {
+                            @Override
+                            public void onCompleted(Exception e, JsonObject result) {
+                                new SubscribedRedditInsert(LogInActivity.this)
+                                        .setCallback(LogInActivity.this)
+                                        .execute(result);
+                            }
+                        });
             }
         };
 
         Credentials credentials = new Credentials(mPassword.getText().toString(), mUsername.getText().toString());
 
         if (credentials.verify()) {
-            CurrentUser.getInstance().setCredentials(credentials).login(this, new FutureCallback<JsonObject>() {
-                @Override
-                public void onCompleted(Exception e, JsonObject result) {
-                    if (checkForErrorsInResponse(result)) {
-                        setupError(result);
-                    } else {
-                        prepareCurrentUser(result);
-                        CurrentUser.getInstance().aboutUser(LogInActivity.this, followUp);
-                    }
-                }
-            });
+            CurrentUser.getInstance()
+                    .setCredentials(credentials)
+                    .login(this, new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception e, JsonObject result) {
+                            if (!checkForErrorsInResponse(result)) {
+                                prepareCurrentUser(result);
+                                CurrentUser.getInstance().aboutUser(LogInActivity.this, followUp);
+                            }
+                        }
+                    });
         } else {
             Crouton.makeText(this, R.string.username_and_password, Style.ALERT).show();
         }
     }
 
+    /**
+     * Checks if the json object has the error array
+     *
+     * @param jsonObject
+     * @return true if the error array is filled, false if not
+     */
     private boolean checkForErrorsInResponse(JsonObject jsonObject) {
-        return jsonObject.getAsJsonObject("json").getAsJsonArray("errors").size() > 0;
+        if (jsonObject.getAsJsonObject("json").getAsJsonArray("errors").size() > 0) {
+            setupError(jsonObject);
+            return true;
+        }
+
+        return false;
     }
 
+    /**
+     * Extracts the error message out of the json and displays it in a Toast
+     *
+     * @param jsonObject
+     */
     private void setupError(JsonObject jsonObject) {
         JsonElement element = jsonObject.getAsJsonObject("json").getAsJsonArray("errors").get(0);
         String reason = element.getAsJsonArray().get(1).toString();
@@ -103,11 +108,23 @@ public class LogInActivity extends Activity implements View.OnClickListener {
         Crouton.makeText(this, reason, Style.ALERT).show();
     }
 
+    /**
+     * Prepares the CurrentUser with the Modhash and cookie returned by the API.
+     *
+     * @param jsonObject
+     */
     private void prepareCurrentUser(JsonObject jsonObject) {
         JsonObject object = jsonObject.get("json").getAsJsonObject().get("data").getAsJsonObject();
         String temp = object.get("modhash").getAsString();
         CurrentUser.getCredentials().setModhash(temp);
         temp = object.get("cookie").getAsString();
         CurrentUser.getCredentials().setCookie(temp);
+    }
+
+    @Override
+    public void onAsyncFinished() {
+        Intent returnIntent = new Intent();
+        setResult(RESULT_OK, returnIntent);
+        finish();
     }
 }
